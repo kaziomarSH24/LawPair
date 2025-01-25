@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('otp')->uniqid()->nullable();
             $table->timestamp('otp_expire_at')->nullable();
             $table->rememberToken();
+            $table->string('google_id')->nullable();
             $table->timestamps();
         });
 

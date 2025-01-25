@@ -341,51 +341,51 @@ class AuthController extends Controller
     // }
 
 
-    // //social login with google
-    // public function loginWithGoogle(Request $request){
-    //   return Socialite::driver('google')->stateless()->redirect();
-    // }
+    //social login with google
+    public function loginWithGoogle(Request $request){
+      return Socialite::driver('google')->stateless()->redirect();
+    }
 
-    // //social login callback
-    // public function googleLoginCallback(){
-    //     try {
-    //         $user = Socialite::driver('google')->stateless()->user();
-    //         $is_user = User::where('email', $user->getEmail())->first();
+    //social login callback
+    public function googleLoginCallback(){
+        try {
+            $user = Socialite::driver('google')->stateless()->user();
+            $is_user = User::where('email', $user->getEmail())->first();
+            if ($is_user) {
+                $token = JWTAuth::fromUser($is_user);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'User logged in successfully!',
+                    'token' => $token,
+                    'user' => $is_user,
+                ]);
+            }
+            $user = User::firstOrCreate([
+                'email' => $user->email,
+            ], [
+                'first_name' => $user->user['given_name'],
+                'last_name' => $user->user['family_name'],
+                'email' => $user->email,
+                'password' => Hash::make($user->getName().'@' .$user->getId()),
+                'avatar' => $user->avatar,
+                'google_id' => $user->id,
+            ]);
 
-    //         if ($is_user) {
-    //             $token = JWTAuth::fromUser($is_user);
-    //             return response()->json([
-    //                 'success' => true,
-    //                 'message' => 'User logged in successfully!',
-    //                 'token' => $token,
-    //                 'user' => $is_user,
-    //             ]);
-    //         }
-    //         $user = User::firstOrCreate([
-    //             'email' => $user->email,
-    //         ], [
-    //             'name' => $user->name,
-    //             'email' => $user->email,
-    //             'password' => Hash::make($user->getName().'@' .$user->getId()),
-    //             'avatar' => $user->avatar,
-    //             'google_id' => $user->id,
-    //         ]);
+            $token = JWTAuth::fromUser($user);
 
-    //         $token = JWTAuth::fromUser($user);
-
-    //         return response()->json([
-    //             'success' => true,
-    //             'message' => 'User created successfully!',
-    //             'token' => $token,
-    //             'user' => $user,
-    //         ]);
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Something went wrong!',
-    //             'error' => $e->getMessage(),
-    //         ]);
-    //     }
-    // }
+            return response()->json([
+                'success' => true,
+                'message' => 'User created successfully!',
+                'token' => $token,
+                'user' => $user,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong!',
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
 
 }

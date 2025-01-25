@@ -17,4 +17,12 @@ Route::controller(AuthController::class)->group(function(){
     Route::post('/verify-email', 'verifyEmail');
     Route::post('/resent-otp', 'resendOtp');
     Route::post('reset-password', 'resetPassword');
+
+    //social login
+    Route::get('/auth/google', 'loginWithGoogle')
+        ->name('google.login');
+
+    //social login callback
+    Route::get('/auth/google/callback', 'googleLoginCallback')
+        ->name('google.login.callback');
 });
