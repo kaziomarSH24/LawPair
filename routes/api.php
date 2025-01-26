@@ -31,5 +31,6 @@ Route::controller(AuthController::class)->group(function(){
 Route::group(['prefix' => 'lawyer', 'middleware' => ['jwt.auth', 'lawyer']], function(){
     Route::controller(LawyerController::class)->group(function(){
         Route::post('/update-profile', 'updateLawyerProfile');
+        Route::get('/profile', 'getLawyerProfile');
     });
 });

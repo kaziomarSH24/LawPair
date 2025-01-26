@@ -12,9 +12,8 @@ class Lawyer extends Model
         'practice_area',
         'experience',
         'languages',
-        'location',
-        'area',
-        'zip_code',
+        'state',
+        'web_link',
         'schedule',
     ];
 

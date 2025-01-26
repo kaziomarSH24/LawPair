@@ -17,7 +17,10 @@ class LawyerMiddleware
     {
         $user = auth()->user();
         if($user->role != 'lawyer') {
-            return response()->json(['message' => 'You are not authorized to perform this action'], 403);
+            return response()->json([
+                'success' => false,
+                'message' => 'You are not authorized to perform this action'
+            ], 403);
         }
         return $next($request);
     }

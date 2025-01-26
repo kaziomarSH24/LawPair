@@ -3,28 +3,38 @@
 namespace App\Http\Controllers\Lawyer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Lawyer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class LawyerController extends Controller
 {
     public function updateLawyerProfile(Request $request)
     {
+        DB::beginTransaction();
         try {
             $user = auth()->user();
             $validator = Validator::make($request->all(), [
                 'service_ids' => 'required|json',
-                'practice_area' => 'required',
-                'experience' => 'required',
-                'languages' => 'required',
-                'location' => 'required',
-                'area' => 'required',
-                'zip_code' => 'required',
-                'web_link' => 'required',
-                'schedule' => 'required'
+                'practice_area' => 'required|string',
+                'experience' => 'required|string',
+                'languages' => 'required|string',
+                'avatar' => 'nullable|image|mimes:jpeg,png,jpg,svg',
+                'state' => 'required|string',
+                'address' => 'required|string',
+                'phone' => 'required|string|unique:users,phone,' . $user->id,
+                'web_link' => 'required|url',
+                'schedule' => 'required|string',
             ]);
-            if($user){
+
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 400);
+            }
+
+            if ($user) {
                 $lawer_id = $user->id;
                 //update or create lawyer profile
                 $lawyer = Lawyer::updateOrCreate(
@@ -33,20 +43,82 @@ class LawyerController extends Controller
                         'service_ids' => $request->service_ids,
                         'practice_area' => $request->practice_area,
                         'experience' => $request->experience,
+                        'state' => $request->state,
                         'languages' => $request->languages,
-                        'location' => $request->location,
-                        'area' => $request->area,
-                        'zip_code' => $request->zip_code,
                         'web_link' => $request->web_link,
-                        'schedule' => $request->schedule
-
+                        'schedule' => $request->schedule,
                     ]
                 );
+                //upload avatar in user table
+                $user->phone = $request->phone;
+                $user->address = $request->address;
+                if ($request->hasFile('avatar')) {
+                    //check old avatar and delete
+                    if (!empty($user->avatar)) {
+                        $old_avatar = $user->avatar;
+                        if (Storage::disk('public')->exists($old_avatar)) {
+                            Storage::disk('public')->delete($old_avatar);
+                        }
+                    }
+                    $avatar = $request->file('avatar');
+                    $user->avatar = $avatar->store('uploads/avatars', 'public');
+                }
+                $user->save();
+            }
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile updated successfully'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong!',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getLawyerProfile(Request $request)
+    {
+        $user = auth()->user();
+        if ($user) {
+            $lawyer = Lawyer::where('user_id', $user->id)->first();
+
+            $serviceIds = json_decode($lawyer->service_ids);
+            $categories = Category::whereIn('id', $serviceIds)->pluck('name');
+
+            $avatar = $user->avatar;
+            if ($avatar) {
+                $avatar = asset('storage/' . $avatar);
             }
 
-            return response()->json(['message' => 'Profile updated successfully'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Something went wrong'], 500);
+            $lawyer = [
+                'id' => $lawyer->id,
+                'user_id' => $lawyer->user_id,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'phone' => $user->phone,
+                'email' => $user->email,
+                'avatar' => $avatar,
+                'categories' => json_decode($categories),
+                'practice_area' => $lawyer->practice_area,
+                'experience' => $lawyer->experience,
+                'state' => $lawyer->state,
+                'address' => $user->address,
+                'languages' => $lawyer->languages,
+                'web_link' => $lawyer->web_link,
+                'schedule' => json_decode($lawyer->schedule),
+            ];
+            return response()->json([
+                'success' => true,
+                'lawyer' => $lawyer
+            ], 200);
         }
+        return response()->json([
+            'success' => false,
+            'message' => 'Profile not found'
+        ], 404);
     }
 }
