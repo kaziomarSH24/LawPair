@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Lawyer\LawyerController;
 use Illuminate\Container\Attributes\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -28,5 +29,7 @@ Route::controller(AuthController::class)->group(function(){
 });
 
 Route::group(['prefix' => 'lawyer', 'middleware' => ['jwt.auth', 'lawyer']], function(){
-    Route::post('/update-profile', 'updateLawyerProfile');
+    Route::controller(LawyerController::class)->group(function(){
+        Route::post('/update-profile', 'updateLawyerProfile');
+    });
 });

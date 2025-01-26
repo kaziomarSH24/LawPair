@@ -17,10 +17,9 @@ return new class extends Migration
             $table->string('service_ids')->nullable();
             $table->string('practice_area')->nullable();
             $table->string('experience')->nullable();
+            $table->string('state')->nullable();
             $table->string('languages')->nullable();
-            $table->string('location')->nullable();
-            $table->string('area')->nullable();
-            $table->integer('zip_code')->nullable();
+            $table->string('web_link')->nullable();
             $table->json('schedule')->nullable();
             $table->timestamps();
         });

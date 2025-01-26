@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('avatar')->nullable();
             $table->string('password');
             $table->enum('role', ['super_admin','admin', 'user','lawyer'])->default('user');
+            $table->string('address')->nullable();
             $table->string('otp')->uniqid()->nullable();
             $table->timestamp('otp_expire_at')->nullable();
             $table->rememberToken();
