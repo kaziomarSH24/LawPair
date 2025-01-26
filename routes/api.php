@@ -26,3 +26,7 @@ Route::controller(AuthController::class)->group(function(){
     Route::get('/auth/google/callback', 'googleLoginCallback')
         ->name('google.login.callback');
 });
+
+Route::group(['prefix' => 'lawyer', 'middleware' => ['jwt.auth', 'lawyer']], function(){
+    Route::post('/update-profile', 'updateLawyerProfile');
+});
