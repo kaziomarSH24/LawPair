@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Types\Relations\Car;
 use Laravel\Socialite\Facades\Socialite;
@@ -297,49 +298,46 @@ class AuthController extends Controller
 
     }
 
-    /**
-     * Update Profile
-     */
-    // public function updateProfile(Request $request){
-    //     $validator = Validator::make($request->all(), [
-    //         'name' => 'required|string',
-    //         'email' => 'required|string|email|unique:users,email,'.Auth::id(),
-    //         'phone' => 'nullable|string',
-    //         'avatar' => 'required|image|mimes:jpeg,png,jpg| max:2048',
-    //     ]);
-    //     if ($validator->fails()) {
-    //         return response()->json($validator->errors());
-    //     }
+    //update profile
+    public function updateProfile(Request $request){
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
+            'phone' => 'required|string|unique:users,phone,'.Auth::id(),
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg| max:2048',
+            'address' => 'required|string',
+        ]);
+        if ($validator->fails()) {
+            return response()->json($validator->errors());
+        }
 
+        $user = Auth::user();
+        $user->first_name = $request->first_name;
+        $user->last_name = $request->last_name;
+        $user->phone = $request->phone;
+        $user->address = $request->address;
 
-    //     $user = Auth::user();
-    //     $user->name = $request->name;
-    //     $user->email = $request->email;
-    //     $user->phone = $request->phone;
+        if($request->hasFile('avatar')){
 
-    //     if($request->hasFile('avatar')){
+            if(!empty($user->avatar)){
+                $old_avatar = $user->avatar;
+                if(Storage::disk('public')->exists($old_avatar)){
+                    Storage::disk('public')->delete($old_avatar);
+                }
+            }
 
-    //         if($user->avatar){
-    //             unlink(public_path('avatars/'.$user->avatar)); //delete old image
-    //         }
+            $avatar = $request->file('avatar');
+           $user->avatar = $avatar->store('uploads/avatars', 'public');
+        }
+        $user->save();
 
-    //         $avatar = $request->file('avatar');
-    //         $avatar_name = time().'.'.$avatar->extension();
-    //         if(!file_exists(public_path('avatars'))){
-    //             mkdir(public_path('avatars'), 0777, true); //create directory if not exists
-    //         }
-    //         $avatar->move(public_path('avatars'), $avatar_name);
-    //         $user->avatar = $avatar_name;
-    //     }
-    //     $user->save();
+        return response()->json([
+            'success' => true,
+            'message' => 'Profile updated successfully!',
+            'user' => $user,
+        ]);
 
-    //     return response()->json([
-    //         'success' => true,
-    //         'message' => 'Profile updated successfully!',
-    //     ]);
-
-    // }
-
+    }
 
     //social login with google
     public function loginWithGoogle(Request $request){
