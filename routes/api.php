@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\LegalResourcesController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Lawyer\LawyerController;
 use Illuminate\Container\Attributes\Auth;
@@ -42,6 +43,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['jwt.auth', 'admin']], funct
     Route::controller(AdminController::class)->group(function(){
         //category routes
         Route::get('/categories', 'getCategories');
+        Route::get('/categories/{id}', 'showCategory');
         Route::post('/store-category', 'storeCategory');
         Route::put('/update-category/{id}', 'updateCategory');
         Route::delete('/delete-category/{id}', 'deleteCategory');
@@ -50,6 +52,15 @@ Route::group(['prefix' => 'admin', 'middleware' => ['jwt.auth', 'admin']], funct
         Route::get('/users', 'getAllUsers');
         Route::delete('/user/{id}','deleteUser');
 
+    });
+
+    //legal resources controller
+    Route::controller(LegalResourcesController::class)->group(function(){
+        Route::get('/legal-resources', 'getAllResources');
+        Route::get('/legal-resources/{id}', 'showResource');
+        Route::post('/store-legal-resource', 'storeResource');
+        Route::put('/update-legal-resource/{id}', 'updateResource');
+        Route::delete('/delete-legal-resource/{id}', 'deleteResource');
     });
 });
 

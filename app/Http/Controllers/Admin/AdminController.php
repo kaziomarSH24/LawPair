@@ -15,9 +15,51 @@ class AdminController extends Controller
      * Category Methods
      */
     //get all categories
-    public function getCategories(){
-        $categories = Category::all();
-        return response()->json($categories, 200);
+    public function getCategories(Request $request){
+        $perPage = $request->per_page ?? 10;
+        $categories = Category::orderBy('id', 'desc')->paginate($perPage);
+        if ($categories->count() == 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No category found!'
+            ], 404);
+        }
+        $categories->transform(function($category){
+            $imageIcon = $category->image_icon;
+            if ($imageIcon) {
+                $imageIcon = asset('storage/' . $imageIcon);
+            }
+            return [
+                'id' => $category->id,
+                'name' => $category->name,
+                'image_icon' => $imageIcon,
+                'created_at' => $category->created_at->format('d M Y'),
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'categories' => $categories
+        ], 200);
+    }
+
+    //show category by id
+    public function showCategory($id){
+        $category = Category::find($id);
+        if (!$category) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Category not found!'
+            ], 404);
+        }
+        $imageIcon = $category->image_icon;
+        if ($imageIcon) {
+            $imageIcon = asset('storage/' . $imageIcon);
+        }
+        return response()->json([
+            'success' => true,
+            'category' => array_merge($category->toArray(), ['image_icon' => $imageIcon])
+        ], 200);
     }
 
     //store category
@@ -81,6 +123,7 @@ class AdminController extends Controller
                 }
                 $imagePath = $imageIcon->store('uploads/categories', 'public');
                 $category->image_icon = $imagePath;
+                $imageUrl = asset('storage/' . $imagePath);
             }
             $category->name = $request->name;
             $category->save();
@@ -88,7 +131,7 @@ class AdminController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Category updated successfully!',
-                'category' => $category
+                'category' => array_merge($category->toArray(), ['image_icon' => $imageUrl ?? asset('storage/' . $category->image_icon)])
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
