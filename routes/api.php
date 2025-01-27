@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\LegalResourcesController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Lawyer\LawyerController;
 use Illuminate\Container\Attributes\Auth;
@@ -61,6 +62,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['jwt.auth', 'admin']], funct
         Route::post('/store-legal-resource', 'storeResource');
         Route::put('/update-legal-resource/{id}', 'updateResource');
         Route::delete('/delete-legal-resource/{id}', 'deleteResource');
+    });
+
+    //settings controller
+    Route::controller(SettingController::class)->group(function(){
+        Route::post('/update-settings', 'updateSettings');
+        Route::get('/settings', 'getSettings');
     });
 });
 
