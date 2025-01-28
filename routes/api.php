@@ -10,6 +10,7 @@ use Illuminate\Container\Attributes\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\User\FavoriteListController;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -72,8 +73,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['jwt.auth', 'admin']], funct
 
     //settings controller
     Route::controller(SettingController::class)->group(function(){
-        Route::post('/update-settings', 'updateSettings');
-        Route::get('/settings', 'getSettings');
+        Route::post('/update-about', 'updateAbout');
+        Route::get('/about', 'getAbout');
+        Route::post('/update-disclaimer', 'updateDisclaimer');
+        Route::get('/disclaimer', 'getDisclaimer');
     });
 });
 
@@ -91,8 +94,24 @@ Route::group(['prefix' => 'lawyer', 'middleware' => ['jwt.auth', 'lawyer']], fun
  * Home page Routes
  */
 
- Route::controller(HomeController::class)->group(function(){
-     //find lawyer
-    Route::get('/find-lawyers', 'findLawyers');
-    Route::get('/lawyer/{id}', 'getLawyerProfile');
- });
+// Route::controller(HomeController::class)->group(function(){
+//     //find lawyer
+//     Route::get('/find-lawyers', 'findLawyers')->middleware('jwt.auth');
+//     Route::get('/lawyer/{id}', 'getLawyerProfile')->middleware('jwt.auth');
+// });
+
+Route::middleware('guest')->group(function(){
+    Route::get('/find-lawyers', [HomeController::class, 'findLawyers']);
+    Route::get('/lawyer/{id}', [HomeController::class, 'getLawyerProfile']);
+});
+
+ /**
+  * FavoriteList Routes
+  */
+Route::group(['prefix' => 'user', 'middleware' => ['jwt.auth']], function(){
+    Route::controller(FavoriteListController::class)->group(function(){
+        Route::get('/favorite-list', 'getFavoriteList');
+        Route::post('/mark-as-favorite', 'markAsFavorite');
+        Route::delete('/unmark-as-favorite/{id}', 'destroy');
+    });
+});
