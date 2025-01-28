@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LegalResourcesController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\AuthController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\Lawyer\LawyerController;
 use Illuminate\Container\Attributes\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -41,10 +43,14 @@ Route::controller(AuthController::class)->group(function(){
  * Admin Routes
  */
 Route::group(['prefix' => 'admin', 'middleware' => ['jwt.auth', 'admin']], function(){
+    //dashboard
+    Route::controller(DashboardController::class)->group(function(){
+        Route::get('/dashboard', 'dashboard');
+    });
     Route::controller(AdminController::class)->group(function(){
         //category routes
-        Route::get('/categories', 'getCategories');
-        Route::get('/categories/{id}', 'showCategory');
+        Route::get('/categories', 'getCategories')->withoutMiddleware(['jwt.auth', 'admin']);
+        Route::get('/categories/{id}', 'showCategory')->withoutMiddleware(['jwt.auth', 'admin']);
         Route::post('/store-category', 'storeCategory');
         Route::put('/update-category/{id}', 'updateCategory');
         Route::delete('/delete-category/{id}', 'deleteCategory');
@@ -57,8 +63,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['jwt.auth', 'admin']], funct
 
     //legal resources controller
     Route::controller(LegalResourcesController::class)->group(function(){
-        Route::get('/legal-resources', 'getAllResources');
-        Route::get('/legal-resources/{id}', 'showResource');
+        Route::get('/legal-resources', 'getAllResources')->withoutMiddleware(['jwt.auth', 'admin']);
+        Route::get('/legal-resources/{id}', 'showResource')->withoutMiddleware(['jwt.auth', 'admin']);
         Route::post('/store-legal-resource', 'storeResource');
         Route::put('/update-legal-resource/{id}', 'updateResource');
         Route::delete('/delete-legal-resource/{id}', 'deleteResource');
@@ -80,3 +86,13 @@ Route::group(['prefix' => 'lawyer', 'middleware' => ['jwt.auth', 'lawyer']], fun
         Route::get('/profile', 'getLawyerProfile');
     });
 });
+
+/**
+ * Home page Routes
+ */
+
+ Route::controller(HomeController::class)->group(function(){
+     //find lawyer
+    Route::get('/find-lawyers', 'findLawyers');
+    Route::get('/lawyer/{id}', 'getLawyerProfile');
+ });
