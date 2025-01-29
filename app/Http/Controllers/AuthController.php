@@ -70,7 +70,7 @@ class AuthController extends Controller
         ];
 
         //send otp
-        $data = sentOtp($data,5);
+        $data = sentOtp($data, 5);
         $user = new User();
         $user->first_name = $request->first_name;
         $user->last_name = $request->last_name;
@@ -141,11 +141,12 @@ class AuthController extends Controller
                 $token = JWTAuth::fromUser($user);
 
                 return $this->responseWithToken($token, 'Email verified successfully!');
-            }else{
+            } else {
                 return response()->json([
                     'success' => false,
                     'message' => 'Invalid OTP!',
-                ], 401);}
+                ], 401);
+            }
         } else {
             return response()->json([
                 'success' => false,
@@ -158,7 +159,8 @@ class AuthController extends Controller
     /**
      * Logout a User
      */
-    public function logout(){
+    public function logout()
+    {
         try {
             JWTAuth::invalidate(JWTAuth::getToken());
             return response()->json([
@@ -193,7 +195,8 @@ class AuthController extends Controller
     /**
      * resend OTP // also using for forgot password
      */
-    public function resendOtp(Request $request){
+    public function resendOtp(Request $request)
+    {
         // dd($request->all());
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email',
@@ -229,11 +232,12 @@ class AuthController extends Controller
     /**
      * reset password
      */
-     public function resetPassword(Request $request){
+    public function resetPassword(Request $request)
+    {
 
         if (isset($request->otp)) {
             $user = User::where('otp', $request->otp)->first();
-            if($user){
+            if ($user) {
                 if ($user->otp_expire_at < Carbon::now()) {
                     return response()->json([
                         'success' => false,
@@ -255,7 +259,7 @@ class AuthController extends Controller
                     'success' => true,
                     'message' => 'Password reset successfully!',
                 ]);
-            }else{
+            } else {
                 return response()->json([
                     'success' => false,
                     'message' => 'Invalid OTP!',
@@ -267,12 +271,13 @@ class AuthController extends Controller
                 'message' => 'OTP is required!',
             ], 401);
         }
-     }
+    }
 
     /**
      * Update password
      */
-    public function updatePassword(Request $request){
+    public function updatePassword(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'old_password' => 'required|string',
             'password' => 'required|string|confirmed|min:8',
@@ -295,15 +300,15 @@ class AuthController extends Controller
                 'message' => 'Invalid old password!',
             ]);
         }
-
     }
 
     //update profile
-    public function updateProfile(Request $request){
+    public function updateProfile(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'first_name' => 'required|string',
             'last_name' => 'required|string',
-            'phone' => 'required|string|unique:users,phone,'.Auth::id(),
+            'phone' => 'required|string|unique:users,phone,' . Auth::id(),
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg| max:2048',
             'address' => 'required|string',
         ]);
@@ -312,22 +317,43 @@ class AuthController extends Controller
         }
 
         $user = Auth::user();
+
+        // Check update limit for lawyer
+        if ($user->role == 'lawyer') {
+
+            $currentWeekStart = now()->startOfWeek();
+            $currentWeekEnd = now()->endOfWeek();
+            $lastUpdated = $user->last_updated_at ? Carbon::parse($user->last_updated_at) : null;
+
+            if ($lastUpdated && $lastUpdated->between($currentWeekStart, $currentWeekEnd)) {
+                if ($user->update_count >= 2) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'You can only update your profile twice a week.'
+                    ], 400);
+                }
+            } else {
+                $user->update_count = 0;
+            }
+            $user->update_count += 1;
+            $user->last_updated_at = now();
+        }
         $user->first_name = $request->first_name;
         $user->last_name = $request->last_name;
         $user->phone = $request->phone;
         $user->address = $request->address;
 
-        if($request->hasFile('avatar')){
+        if ($request->hasFile('avatar')) {
 
-            if(!empty($user->avatar)){
+            if (!empty($user->avatar)) {
                 $old_avatar = $user->avatar;
-                if(Storage::disk('public')->exists($old_avatar)){
+                if (Storage::disk('public')->exists($old_avatar)) {
                     Storage::disk('public')->delete($old_avatar);
                 }
             }
 
             $avatar = $request->file('avatar');
-           $user->avatar = $avatar->store('uploads/avatars', 'public');
+            $user->avatar = $avatar->store('uploads/avatars', 'public');
         }
         $user->save();
 
@@ -336,16 +362,17 @@ class AuthController extends Controller
             'message' => 'Profile updated successfully!',
             'user' => $user,
         ]);
-
     }
 
     //social login with google
-    public function loginWithGoogle(Request $request){
-      return Socialite::driver('google')->stateless()->redirect();
+    public function loginWithGoogle(Request $request)
+    {
+        return Socialite::driver('google')->stateless()->redirect();
     }
 
     //social login callback
-    public function googleLoginCallback(){
+    public function googleLoginCallback()
+    {
         try {
             $user = Socialite::driver('google')->stateless()->user();
             $is_user = User::where('email', $user->getEmail())->first();
@@ -364,7 +391,7 @@ class AuthController extends Controller
                 'first_name' => $user->user['given_name'],
                 'last_name' => $user->user['family_name'],
                 'email' => $user->email,
-                'password' => Hash::make($user->getName().'@' .$user->getId()),
+                'password' => Hash::make($user->getName() . '@' . $user->getId()),
                 'avatar' => $user->avatar,
                 'google_id' => $user->id,
             ]);
@@ -385,5 +412,4 @@ class AuthController extends Controller
             ]);
         }
     }
-
 }
