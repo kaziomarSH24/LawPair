@@ -13,6 +13,7 @@ class Lawyer extends Model
         'experience',
         'languages',
         'state',
+        'city',
         'web_link',
         'schedule',
     ];
