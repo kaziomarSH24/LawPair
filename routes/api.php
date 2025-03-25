@@ -50,6 +50,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['jwt.auth', 'admin']], funct
         Route::get('/dashboard', 'dashboard');
     });
     Route::controller(AdminController::class)->group(function(){
+        //get admin profile
+        Route::get('/profile', 'adminProfile');
         //category routes
         Route::get('/categories', 'getCategories')->withoutMiddleware(['jwt.auth', 'admin']);
         Route::get('/categories/{id}', 'showCategory')->withoutMiddleware(['jwt.auth', 'admin']);

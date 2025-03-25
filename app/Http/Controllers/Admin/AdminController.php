@@ -238,4 +238,33 @@ class AdminController extends Controller
                 ], 500);
             }
         }
+
+    //get admin profile
+    public function adminProfile(){
+        $user = auth()->user()->where('role', 'admin')->first();
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No admin profile found!'
+            ], 404);
+        }
+        $avatar = $user->avatar;
+        if ($avatar) {
+            $avatar = asset('storage/' . $avatar);
+        }
+        return response()->json([
+            'success' => true,
+            'user' => [
+                'id' => $user->id,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'full_name' => $user->full_name,
+                'phone' => $user->phone,
+                'email' => $user->email,
+                'avatar' => $avatar,
+                'role' => $user->role,
+                'created_at' => $user->created_at->format('d M Y'),
+            ]
+        ], 200);
+    }
 }
