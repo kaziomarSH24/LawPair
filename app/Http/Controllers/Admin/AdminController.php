@@ -241,7 +241,7 @@ class AdminController extends Controller
 
     //get admin profile
     public function adminProfile(){
-        $user = auth()->user()->where('role', 'admin')->first();
+        $user = auth()->user();
         if (!$user) {
             return response()->json([
                 'success' => false,
