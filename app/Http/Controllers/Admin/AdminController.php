@@ -198,10 +198,11 @@ class AdminController extends Controller
                 'id' => $user->id,
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
+                'full_name' => $user->full_name,
                 'phone' => $user->phone,
                 'email' => $user->email,
                 'avatar' => $avatar,
-                'role' => $user->role,
+                'role' => $user->role == "user" ? "Client" : ($user->role == "lawyer" ? "Lawyer" : "Admin"),
                 'created_at' => $user->created_at->format('d M Y'),
             ];
         });

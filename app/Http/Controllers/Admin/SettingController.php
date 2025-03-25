@@ -89,7 +89,7 @@ class SettingController extends Controller
         ], 200);
     }
 
-    
+
     //get Disclaimer
     public function getDisclaimer(){
         $settings = Disclaimer::first();

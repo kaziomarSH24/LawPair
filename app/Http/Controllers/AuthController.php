@@ -60,7 +60,10 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors());
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first(),
+            ]);
         }
 
 
@@ -91,14 +94,57 @@ class AuthController extends Controller
     /**
      * Login a User
      */
+    // public function login(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'email' => 'required|string|email|',
+    //         'password' => 'required|string|min:6',
+    //     ]);
+    //     if ($validator->fails()) {
+    //         return response()->json($validator->errors());
+    //     }
+
+    //     if (!$token = JWTAuth::attempt($validator->validated())) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Invalid email or password!'
+    //         ]);
+    //     } else {
+    //         $user = Auth::user();
+    //         if ($user->email_verified_at == null) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Please verify your email address!',
+    //             ]);
+    //         }
+    //     }
+
+    //     return $this->responseWithToken($token);
+    // }
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'role' => 'nullable|string',
             'email' => 'required|string|email|',
             'password' => 'required|string|min:6',
         ]);
         if ($validator->fails()) {
-            return response()->json($validator->errors());
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first(),
+            ]);
+        }
+        // if($request->)
+        if($request->role){
+            $user = User::where('email', $request->email)->where('role', $request->role)->first();
+        }else{
+            $user = User::where('email', $request->email)->first();
+        }
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid email or password!',
+            ]);
         }
 
         if (!$token = JWTAuth::attempt($validator->validated())) {
@@ -235,15 +281,8 @@ class AuthController extends Controller
     public function resetPassword(Request $request)
     {
 
-        if (isset($request->otp)) {
-            $user = User::where('otp', $request->otp)->first();
+            $user = Auth::user();
             if ($user) {
-                if ($user->otp_expire_at < Carbon::now()) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'OTP has expired! Please request for a new OTP!',
-                    ], 401);
-                }
                 $validator = Validator::make($request->all(), [
                     'password' => 'required|string|confirmed|min:6',
                 ]);
@@ -262,15 +301,9 @@ class AuthController extends Controller
             } else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Invalid OTP!',
+                    'message' => 'Unauthorized user!',
                 ], 401);
             }
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'OTP is required!',
-            ], 401);
-        }
     }
 
     /**
@@ -302,6 +335,7 @@ class AuthController extends Controller
         }
     }
 
+
     //update profile
     public function updateProfile(Request $request)
     {
@@ -311,9 +345,16 @@ class AuthController extends Controller
             'phone' => 'required|string|unique:users,phone,' . Auth::id(),
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg| max:2048',
             'address' => 'required|string',
-        ]);
+        ],
+            [
+                'avatar.max' => 'The avatar must be less than 2MB.',
+            ]
+    );
         if ($validator->fails()) {
-            return response()->json($validator->errors());
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first(),
+            ]);
         }
 
         $user = Auth::user();

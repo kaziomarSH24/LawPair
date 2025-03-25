@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\User\FavoriteListController;
+use App\Http\Controllers\User\UserController;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -25,7 +26,7 @@ Route::controller(AuthController::class)->group(function(){
     Route::get('/logout', 'logout')->middleware('jwt.auth');
     Route::post('/verify-email', 'verifyEmail');
     Route::post('/resent-otp', 'resendOtp');
-    Route::post('reset-password', 'resetPassword');
+    Route::post('reset-password', 'resetPassword')->middleware('jwt.auth');
 
     //update user profile & password
     Route::post('/update-profile', 'updateProfile')->middleware('jwt.auth');
@@ -103,6 +104,7 @@ Route::group(['prefix' => 'lawyer', 'middleware' => ['jwt.auth', 'lawyer']], fun
 Route::middleware('guest')->group(function(){
     Route::get('/find-lawyers', [HomeController::class, 'findLawyers']);
     Route::get('/lawyer/{id}', [HomeController::class, 'getLawyerProfile']);
+    Route::get('/search-lawyer', [HomeController::class, 'searchLawyer']);
 });
 
  /**
@@ -114,4 +116,5 @@ Route::group(['prefix' => 'user', 'middleware' => ['jwt.auth']], function(){
         Route::post('/mark-as-favorite', 'markAsFavorite');
         Route::delete('/unmark-as-favorite/{id}', 'destroy');
     });
+    Route::get('profile', [UserController::class, 'getProfile']);
 });

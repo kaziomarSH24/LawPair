@@ -33,6 +33,7 @@ class FavoriteListController extends Controller
                     'state' => $favorite->lawyer->state,
                     'languages' => $favorite->lawyer->languages,
                     'experience' => $favorite->lawyer->experience,
+                    'is_favorite' => $favorite->is_favorite,
                     'created_at' => $favorite->lawyer->created_at->format('d M Y'),
                 ];
             });

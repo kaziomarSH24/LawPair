@@ -33,6 +33,8 @@ class User extends Authenticatable implements JWTSubject
         'google_id',
     ];
 
+
+    protected $appends = ['full_name'];
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -92,4 +94,12 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Favorite::class);
     }
+
+    //attribute
+    public function getFullNameAttribute()
+    {
+        return $this->first_name . ' ' . $this->last_name;
+    }
+
+    
 }

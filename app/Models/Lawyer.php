@@ -21,6 +21,8 @@ class Lawyer extends Model
         'schedule' => 'array',
     ];
 
+    protected $appends = ['name'];
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -29,5 +31,11 @@ class Lawyer extends Model
     public function favorites()
     {
         return $this->hasMany(Favorite::class);
+    }
+
+    //attributes
+    public function getNameAttribute()
+    {
+        return $this->user->first_name . ' ' . $this->user->last_name;
     }
 }

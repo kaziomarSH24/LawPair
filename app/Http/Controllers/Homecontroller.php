@@ -37,11 +37,14 @@ class Homecontroller extends Controller
                         'message' => 'No lawyer found!'
                     ], 404);
                 }
-                $categories = Category::whereIn('id', $serviceIds)->pluck('name');
+                // return collect($lawyers)->service_ids;
 
-                $lawyers->getCollection()->transform(function($lawyer) use($categories){
+
+                $lawyers->getCollection()->transform(function($lawyer){
                     $avatar = $lawyer->user->avatar;
                     $is_favorite = Favorite::where('lawyer_id', $lawyer->id)->where('user_id', auth()->id())->exists();
+                    // dd();
+                    $categories = Category::whereIn('id', json_decode($lawyer->service_ids))->pluck('name');
                     if ($avatar) {
                         $avatar = asset('storage/' . $avatar);
                     }
@@ -49,10 +52,11 @@ class Homecontroller extends Controller
                         'id' => $lawyer->id,
                         'first_name' => $lawyer->user->first_name,
                         'last_name' => $lawyer->user->last_name,
+                        'full_name' => $lawyer->user->full_name,
                         'email' => $lawyer->user->email,
                         'phone' => $lawyer->phone,
                         'avatar' => $avatar,
-                        'categories' => json_decode($categories),
+                        'categories' => is_string($categories) ? json_decode($categories) : $categories,
                         'state' => $lawyer->state,
                         'languages' => $lawyer->languages,
                         'experience' => $lawyer->experience,
@@ -69,7 +73,7 @@ class Homecontroller extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Something went wrong!',
-                // 'error' => $e->getMessage()
+                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -102,17 +106,18 @@ class Homecontroller extends Controller
                 'user_id' => $lawyer->user_id,
                 'first_name' => $lawyer->user->first_name,
                 'last_name' => $lawyer->user->last_name,
+                'full_name' => $lawyer->user->full_name,
                 'phone' => $lawyer->user->phone,
                 'email' => $lawyer->user->email,
                 'avatar' => $avatar,
-                'categories' => json_decode($categories),
+                'categories' => is_string($categories) ? json_decode($categories) : $categories,
                 'practice_area' => $lawyer->practice_area,
                 'experience' => $lawyer->experience,
                 'state' => $lawyer->state,
                 'address' => $lawyer->user->address,
                 'languages' => $lawyer->languages,
                 'web_link' => $lawyer->web_link,
-                'schedule' => json_decode($lawyer->schedule),
+                'schedule' => is_string($lawyer->schedule) ? json_decode($lawyer->schedule) : $lawyer->schedule,
                 'is_favorite' => $is_favorite,
                 'created_at' => $lawyer->created_at
             ];
@@ -125,5 +130,51 @@ class Homecontroller extends Controller
             'success' => false,
             'message' => 'Profile not found'
         ], 404);
+    }
+
+    //search lawyer by name
+    public function searchLawyer(Request $request){
+        $searchKey = $request->name;
+        $lawyers = Lawyer::with('user')
+            ->whereHas('user', function ($query) use ($searchKey) {
+            $query->where('first_name', 'like', '%' . $searchKey . '%')
+                  ->orWhere('last_name', 'like', '%' . $searchKey . '%');
+            })
+            ->paginate($request->per_page ?? 10);
+
+        if($lawyers->count() == 0){
+            return response()->json([
+                'success' => false,
+                'message' => 'No lawyer found!'
+            ], 404);
+        }
+
+        $lawyers->getCollection()->transform(function($lawyer){
+            $avatar = $lawyer->user->avatar;
+            $is_favorite = Favorite::where('lawyer_id', $lawyer->id)->where('user_id', auth()->id())->exists();
+            if ($avatar) {
+                $avatar = asset('storage/' . $avatar);
+            }
+            return [
+                'id' => $lawyer->id,
+                'first_name' => $lawyer->user->first_name,
+                'last_name' => $lawyer->user->last_name,
+                'full_name' => $lawyer->user->full_name,
+                'email' => $lawyer->user->email,
+                'phone' => $lawyer->phone,
+                'avatar' => $avatar,
+                'state' => $lawyer->state,
+                'languages' => $lawyer->languages,
+                'experience' => $lawyer->experience,
+                'role' => $lawyer->user->role,
+                'is_favorite' => $is_favorite,
+                'created_at' => $lawyer->created_at->format('d M Y'),
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'lawyers' => $lawyers
+        ], 200);
     }
 }

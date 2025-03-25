@@ -27,7 +27,7 @@ class LawyerController extends Controller
             'state' => 'required|string',
             'address' => 'required|string',
             'phone' => 'required|string|unique:users,phone,' . $user->id,
-            'web_link' => 'required|url',
+            'web_link' => 'nullable|url',
             'schedule' => 'required|string',
         ]);
 
@@ -116,11 +116,14 @@ class LawyerController extends Controller
                 $avatar = asset('storage/' . $avatar);
             }
 
+            // return $lawyer;
+
             $lawyer = [
                 'id' => $lawyer->id,
                 'user_id' => $lawyer->user_id,
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
+                'full_name' => $user->full_name,
                 'phone' => $user->phone,
                 'email' => $user->email,
                 'avatar' => $avatar,
