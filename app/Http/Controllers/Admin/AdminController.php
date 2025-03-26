@@ -33,6 +33,7 @@ class AdminController extends Controller
                 'id' => $category->id,
                 'name' => $category->name,
                 'image_icon' => $imageIcon,
+                'description' => $category->description,
                 'created_at' => $category->created_at->format('d M Y'),
             ];
         });
@@ -80,6 +81,7 @@ class AdminController extends Controller
         }
         $category = new Category();
         $category->name = $request->name;
+        $category->description = $request->description;
         $category->image_icon = $imagePath;
         $category->save();
 
@@ -126,6 +128,7 @@ class AdminController extends Controller
                 $imageUrl = asset('storage/' . $imagePath);
             }
             $category->name = $request->name;
+            $category->description = $request->description;
             $category->save();
 
             return response()->json([
