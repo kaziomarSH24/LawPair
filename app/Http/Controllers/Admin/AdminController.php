@@ -262,6 +262,7 @@ class AdminController extends Controller
                 'phone' => $user->phone,
                 'email' => $user->email,
                 'avatar' => $avatar,
+                'address' => $user->address,
                 'role' => $user->role,
                 'created_at' => $user->created_at->format('d M Y'),
             ]
