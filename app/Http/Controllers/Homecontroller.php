@@ -45,9 +45,9 @@ class Homecontroller extends Controller
                     $is_favorite = Favorite::where('lawyer_id', $lawyer->id)->where('user_id', auth()->id())->exists();
                     // dd();
                     $categories = Category::whereIn('id', json_decode($lawyer->service_ids))->pluck('name');
-                    if ($avatar) {
-                        $avatar = asset('storage/' . $avatar);
-                    }
+                    // if ($avatar) {
+                    //     $avatar = asset('storage/' . $avatar);
+                    // }
                     return [
                         'id' => $lawyer->id,
                         'first_name' => $lawyer->user->first_name,
@@ -95,9 +95,9 @@ class Homecontroller extends Controller
             $categories = Category::whereIn('id', $serviceIds)->pluck('name');
 
             $avatar = $lawyer->user->avatar;
-            if ($avatar) {
-                $avatar = asset('storage/' . $avatar);
-            }
+            // if ($avatar) {
+            //     $avatar = asset('storage/' . $avatar);
+            // }
 
             $is_favorite = Favorite::where('lawyer_id', $lawyer->id)->where('user_id', auth()->id())->exists();
 
@@ -152,9 +152,9 @@ class Homecontroller extends Controller
         $lawyers->getCollection()->transform(function($lawyer){
             $avatar = $lawyer->user->avatar;
             $is_favorite = Favorite::where('lawyer_id', $lawyer->id)->where('user_id', auth()->id())->exists();
-            if ($avatar) {
-                $avatar = asset('storage/' . $avatar);
-            }
+            // if ($avatar) {
+            //     $avatar = asset('storage/' . $avatar);
+            // }
             return [
                 'id' => $lawyer->id,
                 'first_name' => $lawyer->user->first_name,

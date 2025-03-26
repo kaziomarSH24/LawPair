@@ -18,7 +18,7 @@ class UserController extends Controller
             ], 403);
         }
 
-        $user->avatar = $user->avatar ? asset('storage/' . $user->avatar) : null;
+        // $user->avatar = $user->avatar ? asset('storage/' . $user->avatar) : null;
 
         return response()->json([
             'status' => 'success',

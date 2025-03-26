@@ -191,9 +191,9 @@ class AdminController extends Controller
             }
         $users->transform(function($user){
             $avatar = $user->avatar;
-            if ($avatar) {
-                $avatar = asset('storage/' . $avatar);
-            }
+            // if ($avatar) {
+            //     $avatar = asset('storage/' . $avatar);
+            // }
             return [
                 'id' => $user->id,
                 'first_name' => $user->first_name,
@@ -222,7 +222,7 @@ class AdminController extends Controller
                         'message' => 'User not found!'
                     ], 404);
                 }
-                $avatar = $user->avatar;
+                $avatar = str_replace('/storage/', '', parse_url($user->avatar)['path']);
                 if ($avatar && Storage::disk('public')->exists($avatar)) {
                     Storage::disk('public')->delete($avatar);
                 }
@@ -249,9 +249,9 @@ class AdminController extends Controller
             ], 404);
         }
         $avatar = $user->avatar;
-        if ($avatar) {
-            $avatar = asset('storage/' . $avatar);
-        }
+        // if ($avatar) {
+        //     $avatar = asset('storage/' . $avatar);
+        // }
         return response()->json([
             'success' => true,
             'user' => [

@@ -20,31 +20,6 @@ class AuthController extends Controller
 {
 
     /**
-     * Get User
-     */
-    // public function getUser(){
-    //     $user = Auth::User();
-    //     $user = collect([$user])->transform(function($data){
-    //         return [
-    //             'id' => $data->id,
-    //             'name' => $data->name,
-    //             'email' => $data->email,
-    //             'phone' => $data->phone,
-    //             'role' => $data->role,
-    //             'paystack_customer_id' => $data->paystack_customer_id,
-    //             'edu_level' => $data->edu_level,
-    //             'remember_token' => $data->remember_token,
-    //             'created_at' => $data->created_at,
-    //             'updated_at' => $data->updated_at,
-    //         ];
-    //     });
-    //     return response()->json([
-    //         'success' => true,
-    //         'user' => $user,
-    //     ]);
-    // }
-
-    /**
      * Register a User
      */
 
@@ -387,7 +362,7 @@ class AuthController extends Controller
         if ($request->hasFile('avatar')) {
 
             if (!empty($user->avatar)) {
-                $old_avatar = $user->avatar;
+                $old_avatar = $old_avatar = str_replace('/storage/', '', parse_url($user->avatar)['path']);
                 if (Storage::disk('public')->exists($old_avatar)) {
                     Storage::disk('public')->delete($old_avatar);
                 }

@@ -74,7 +74,8 @@ class LawyerController extends Controller
             if ($request->hasFile('avatar')) {
                 // Check old avatar and delete
                 if (!empty($user->avatar)) {
-                    $old_avatar = $user->avatar;
+                    $old_avatar = str_replace('/storage/', '', parse_url($user->avatar)['path']);
+                    // return $old_avatar;
                     if (Storage::disk('public')->exists($old_avatar)) {
                         Storage::disk('public')->delete($old_avatar);
                     }
@@ -114,10 +115,7 @@ class LawyerController extends Controller
             $categories = Category::whereIn('id', $serviceIds)->pluck('name');
 
             $avatar = $user->avatar;
-            if ($avatar) {
-                $avatar = asset('storage/' . $avatar);
-            }
-
+            
             // return $lawyer;
 
             $lawyer = [

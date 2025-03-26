@@ -28,7 +28,7 @@ class FavoriteListController extends Controller
                     'email' => $favorite->lawyer->user->email,
                     'phone' => $favorite->lawyer->user->phone,
                     'address' => $favorite->lawyer->user->address,
-                    'avatar' => $favorite->lawyer->user->avatar ? asset('storage/' . $favorite->lawyer->user->avatar) : null,
+                    'avatar' => $favorite->lawyer->user->avatar,
                     'categories' => json_decode($categories),
                     'state' => $favorite->lawyer->state,
                     'languages' => $favorite->lawyer->languages,
