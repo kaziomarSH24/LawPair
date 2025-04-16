@@ -24,7 +24,7 @@ class Homecontroller extends Controller
 
             $lawyers = Lawyer::with('user')
                 ->where('state', $request->state)
-                ->where('languages', $request->language)
+                ->where('city', 'like', '%' . $request->city . '%')
                 ->where(function ($query) use ($serviceIds) {
                     foreach ($serviceIds as $id) {
                         $query->orWhereJsonContains('service_ids', $id);
@@ -58,6 +58,8 @@ class Homecontroller extends Controller
                         'avatar' => $avatar,
                         'categories' => is_string($categories) ? json_decode($categories) : $categories,
                         'state' => $lawyer->state,
+                        'city' => $lawyer->city,
+                        'address' => $lawyer->user->address,
                         'languages' => $lawyer->languages,
                         'experience' => $lawyer->experience,
                         'is_favorite' => $is_favorite,
