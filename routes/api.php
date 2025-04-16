@@ -120,4 +120,5 @@ Route::group(['prefix' => 'user', 'middleware' => ['jwt.auth']], function(){
         Route::delete('/unmark-as-favorite/{id}', 'destroy');
     });
     Route::get('profile', [UserController::class, 'getProfile']);
+    Route::get('/{id}', [UserController::class, 'getUserById']);
 });

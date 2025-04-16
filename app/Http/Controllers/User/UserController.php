@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
+use App\Models\Favorite;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -24,5 +27,58 @@ class UserController extends Controller
             'status' => 'success',
             'data' => $user
         ]);
+    }
+
+    //get user or laywer by id
+    public function getUserById($id)
+    {
+
+        if ($id) {
+            $user = User::with('lawyer')->where('id', $id)->first();
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found!'
+                ], 404);
+            }
+
+            if($user->role === 'lawyer'){
+                $serviceIds = json_decode($user->lawyer->service_ids);
+                $categories = Category::whereIn('id', $serviceIds)->pluck('name');
+                $is_favorite = Favorite::where('lawyer_id', $user->lawyer->id)->where('user_id', auth()->id())->exists();
+            }
+            $avatar = $user->avatar;
+
+
+            $user = [
+                'id' => $user->id,
+                'lawyer_id' => $user->role === 'lawyer' ? $user->lawyer->id : null,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'full_name' => $user->full_name,
+                'role' => $user->role,
+                'phone' => $user->phone,
+                'email' => $user->email,
+                'avatar' => $avatar,
+                'categories' => $user->role === 'lawyer' ? (is_string($categories) ? json_decode($categories) : $categories) : null,
+                'practice_area' => $user->practice_area,
+                'experience' => $user->experience,
+                'state' => $user->state,
+                'address' => $user->address,
+                'languages' => $user->languages,
+                'web_link' => $user->web_link,
+                'schedule' => $user->role === 'lawyer' ? (is_string($user->lawyer->schedule) ? json_decode($user->lawyer->schedule) : $user->lawyer->schedule) : null,
+                'is_favorite' => $user->role === 'lawyer' ? $is_favorite : null,
+                'created_at' => $user->role === 'lawyer' ? $user->lawyer->created_at : $user->created_at,
+            ];
+            return response()->json([
+                'success' => true,
+                'user' => $user
+            ], 200);
+        }
+        return response()->json([
+            'success' => false,
+            'message' => 'Profile not found'
+        ], 404);
     }
 }
