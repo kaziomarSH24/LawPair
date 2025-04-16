@@ -26,7 +26,7 @@ Route::controller(AuthController::class)->group(function(){
     Route::get('/logout', 'logout')->middleware('jwt.auth');
     Route::post('/verify-email', 'verifyEmail');
     Route::post('/resent-otp', 'resendOtp');
-    Route::post('reset-password', 'resetPassword')->middleware('jwt.auth');
+    Route::post('reset-password', 'resetPassword');
 
     //update user profile & password
     Route::post('/update-profile', 'updateProfile')->middleware('jwt.auth');
@@ -90,6 +90,7 @@ Route::group(['prefix' => 'lawyer', 'middleware' => ['jwt.auth', 'lawyer']], fun
     Route::controller(LawyerController::class)->group(function(){
         Route::post('/update-profile', 'updateLawyerProfile');
         Route::get('/profile', 'getLawyerProfile');
+        Route::get('/all-lawyers','getLawyers');
     });
 });
 

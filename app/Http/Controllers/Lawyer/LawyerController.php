@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Lawyer;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Lawyer;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +34,10 @@ class LawyerController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first()
+            ],400);
         }
 
         // Check update limit
@@ -115,7 +119,7 @@ class LawyerController extends Controller
             $categories = Category::whereIn('id', $serviceIds)->pluck('name');
 
             $avatar = $user->avatar;
-            
+
             // return $lawyer;
 
             $lawyer = [
@@ -147,4 +151,38 @@ class LawyerController extends Controller
             'message' => 'Profile not found'
         ], 404);
     }
+
+    public function getLawyers(Request $request){
+        $perPage = $request->per_page ?? 10;
+        $lawyers = Lawyer::with('user')
+            ->orderBy('id', 'desc')
+            ->paginate($perPage);
+            if ($lawyers->count() == 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No lawyer found!'
+                ], 404);
+            }
+        $lawyers->transform(function($lawyer){
+            $avatar = $lawyer->user->avatar;
+            // if ($avatar) {
+            //     $avatar = asset('storage/' . $avatar);
+            // }
+            return [
+                'id' => $lawyer->id,
+                'first_name' => $lawyer->user->first_name,
+                'last_name' => $lawyer->user->last_name,
+                'full_name' => $lawyer->user->full_name,
+                'phone' => $lawyer->user->phone,
+                'email' => $lawyer->user->email,
+                'avatar' => $avatar,
+                'role' => $lawyer->user->role == "user" ? "Client" : ($lawyer->user->role == "lawyer" ? "Lawyer" : "Admin"),
+                'created_at' => $lawyer->created_at->format('d M Y'),
+            ];
+        });
+        return response()->json([
+            'success' => true,
+            'lawyers' => $lawyers
+        ], 200);
+     }
 }

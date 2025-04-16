@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -8,12 +7,9 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Types\Relations\Car;
 use Laravel\Socialite\Facades\Socialite;
-use Tymon\JWTAuth\Contracts\Providers\JWT;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
@@ -26,12 +22,12 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'role' => 'required|string',
+            'role'       => 'required|string',
             'first_name' => 'required|string',
-            'last_name' => 'required|string',
-            'location' => 'nullable|string',
-            'email' => 'required|string|email|unique:users',
-            'password' => 'required|string|confirmed|min:8',
+            'last_name'  => 'required|string',
+            'location'   => 'nullable|string',
+            'email'      => 'required|string|email|unique:users',
+            'password'   => 'required|string|confirmed|min:8',
         ]);
 
         if ($validator->fails()) {
@@ -41,22 +37,21 @@ class AuthController extends Controller
             ]);
         }
 
-
         $data = [
-            'name' => $request->first_name,
+            'name'  => $request->first_name,
             'email' => $request->email,
         ];
 
         //send otp
-        $data = sentOtp($data, 5);
-        $user = new User();
-        $user->first_name = $request->first_name;
-        $user->last_name = $request->last_name;
-        $user->phone = $request->phone;
-        $user->email = $request->email;
-        $user->role = $request->role;
-        $user->password = $request->password;
-        $user->otp = $data['otp'];
+        $data                = sentOtp($data, 5);
+        $user                = new User();
+        $user->first_name    = $request->first_name;
+        $user->last_name     = $request->last_name;
+        $user->phone         = $request->phone;
+        $user->email         = $request->email;
+        $user->role          = $request->role;
+        $user->password      = $request->password;
+        $user->otp           = $data['otp'];
         $user->otp_expire_at = $data['otp_expire_at'];
         $user->save();
 
@@ -99,8 +94,8 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'role' => 'nullable|string',
-            'email' => 'required|string|email|',
+            'role'     => 'nullable|string',
+            'email'    => 'required|string|email|',
             'password' => 'required|string|min:6',
         ]);
         if ($validator->fails()) {
@@ -110,22 +105,22 @@ class AuthController extends Controller
             ]);
         }
         // if($request->)
-        if($request->role){
+        if ($request->role) {
             $user = User::where('email', $request->email)->where('role', $request->role)->first();
-        }else{
+        } else {
             $user = User::where('email', $request->email)->first();
         }
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid email or password!',
             ]);
         }
 
-        if (!$token = JWTAuth::attempt($validator->validated())) {
+        if (! $token = JWTAuth::attempt($validator->validated())) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid email or password!'
+                'message' => 'Invalid email or password!',
             ]);
         } else {
             $user = Auth::user();
@@ -155,8 +150,8 @@ class AuthController extends Controller
                     ], 401);
                 }
                 $user->email_verified_at = Carbon::now();
-                $user->otp = null;
-                $user->otp_expire_at = null;
+                $user->otp               = null;
+                $user->otp_expire_at     = null;
                 $user->save();
 
                 $token = JWTAuth::fromUser($user);
@@ -175,7 +170,6 @@ class AuthController extends Controller
             ], 401);
         }
     }
-
 
     /**
      * Logout a User
@@ -196,22 +190,20 @@ class AuthController extends Controller
         }
     }
 
-
     /**
      * Response with Token
      */
     public function responseWithToken($token, $msg = null)
     {
         return response()->json([
-            'success' => true,
-            'message' => $msg ?? 'User logged in successfully!',
+            'success'      => true,
+            'message'      => $msg ?? 'User logged in successfully!',
             'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => JWTAuth::factory()->getTTL() * 600000000,
-            'user' => Auth::user(),
+            'token_type'   => 'bearer',
+            'expires_in'   => JWTAuth::factory()->getTTL() * 600000000,
+            'user'         => Auth::user(),
         ]);
     }
-
 
     /**
      * resend OTP // also using for forgot password
@@ -229,11 +221,11 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
         if ($user) {
             $data = [
-                'name' => $user->name,
+                'name'  => $user->name,
                 'email' => $user->email,
             ];
-            $data = sentOtp($data, 5);
-            $user->otp = $data['otp'];
+            $data                = sentOtp($data, 5);
+            $user->otp           = $data['otp'];
             $user->otp_expire_at = $data['otp_expire_at'];
             $user->save();
 
@@ -249,36 +241,34 @@ class AuthController extends Controller
         }
     }
 
-
     /**
      * reset password
      */
     public function resetPassword(Request $request)
     {
-
-            $user = Auth::user();
-            if ($user) {
-                $validator = Validator::make($request->all(), [
-                    'password' => 'required|string|confirmed|min:6',
-                ]);
-                if ($validator->fails()) {
-                    return response()->json($validator->errors());
-                }
-                $user->password = Hash::make($request->password);
-                $user->otp = null;
-                $user->otp_expire_at = null;
-                $user->save();
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Password reset successfully!',
-                ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized user!',
-                ], 401);
+        $user = User::where('email', $request->email)->first();
+        if ($user) {
+            $validator = Validator::make($request->all(), [
+                'password' => 'required|string|confirmed|min:6',
+            ]);
+            if ($validator->fails()) {
+                return response()->json($validator->errors());
             }
+            $user->password      = Hash::make($request->password);
+            $user->otp           = null;
+            $user->otp_expire_at = null;
+            $user->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Password reset successfully!',
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized user!',
+            ], 401);
+        }
     }
 
     /**
@@ -288,7 +278,7 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'old_password' => 'required|string',
-            'password' => 'required|string|confirmed|min:8',
+            'password'     => 'required|string|confirmed|min:8',
         ]);
         if ($validator->fails()) {
             return response()->json($validator->errors());
@@ -310,21 +300,20 @@ class AuthController extends Controller
         }
     }
 
-
     //update profile
     public function updateProfile(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'first_name' => 'required|string',
-            'last_name' => 'required|string',
-            'phone' => 'required|string|unique:users,phone,' . Auth::id(),
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg| max:2048',
-            'address' => 'required|string',
+            'last_name'  => 'required|string',
+            'phone'      => 'required|string|unique:users,phone,' . Auth::id(),
+            'avatar'     => 'nullable|image|mimes:jpeg,png,jpg| max:2048',
+            'address'    => 'required|string',
         ],
             [
                 'avatar.max' => 'The avatar must be less than 2MB.',
             ]
-    );
+        );
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
@@ -338,14 +327,14 @@ class AuthController extends Controller
         if ($user->role == 'lawyer') {
 
             $currentWeekStart = now()->startOfWeek();
-            $currentWeekEnd = now()->endOfWeek();
-            $lastUpdated = $user->last_updated_at ? Carbon::parse($user->last_updated_at) : null;
+            $currentWeekEnd   = now()->endOfWeek();
+            $lastUpdated      = $user->last_updated_at ? Carbon::parse($user->last_updated_at) : null;
 
             if ($lastUpdated && $lastUpdated->between($currentWeekStart, $currentWeekEnd)) {
                 if ($user->update_count >= 2) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'You can only update your profile twice a week.'
+                        'message' => 'You can only update your profile twice a week.',
                     ], 400);
                 }
             } else {
@@ -355,20 +344,20 @@ class AuthController extends Controller
             $user->last_updated_at = now();
         }
         $user->first_name = $request->first_name;
-        $user->last_name = $request->last_name;
-        $user->phone = $request->phone;
-        $user->address = $request->address;
+        $user->last_name  = $request->last_name;
+        $user->phone      = $request->phone;
+        $user->address    = $request->address;
 
         if ($request->hasFile('avatar')) {
 
-            if (!empty($user->avatar)) {
+            if (! empty($user->avatar)) {
                 $old_avatar = $old_avatar = str_replace('/storage/', '', parse_url($user->avatar)['path']);
                 if (Storage::disk('public')->exists($old_avatar)) {
                     Storage::disk('public')->delete($old_avatar);
                 }
             }
 
-            $avatar = $request->file('avatar');
+            $avatar       = $request->file('avatar');
             $user->avatar = $avatar->store('uploads/avatars', 'public');
         }
         $user->save();
@@ -376,7 +365,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Profile updated successfully!',
-            'user' => $user,
+            'user'    => $user,
         ]);
     }
 
@@ -390,26 +379,26 @@ class AuthController extends Controller
     public function googleLoginCallback()
     {
         try {
-            $user = Socialite::driver('google')->stateless()->user();
+            $user    = Socialite::driver('google')->stateless()->user();
             $is_user = User::where('email', $user->getEmail())->first();
             if ($is_user) {
                 $token = JWTAuth::fromUser($is_user);
                 return response()->json([
                     'success' => true,
                     'message' => 'User logged in successfully!',
-                    'token' => $token,
-                    'user' => $is_user,
+                    'token'   => $token,
+                    'user'    => $is_user,
                 ]);
             }
             $user = User::firstOrCreate([
                 'email' => $user->email,
             ], [
                 'first_name' => $user->user['given_name'],
-                'last_name' => $user->user['family_name'],
-                'email' => $user->email,
-                'password' => Hash::make($user->getName() . '@' . $user->getId()),
-                'avatar' => $user->avatar,
-                'google_id' => $user->id,
+                'last_name'  => $user->user['family_name'],
+                'email'      => $user->email,
+                'password'   => Hash::make($user->getName() . '@' . $user->getId()),
+                'avatar'     => $user->avatar,
+                'google_id'  => $user->id,
             ]);
 
             $token = JWTAuth::fromUser($user);
@@ -417,14 +406,14 @@ class AuthController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'User created successfully!',
-                'token' => $token,
-                'user' => $user,
+                'token'   => $token,
+                'user'    => $user,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Something went wrong!',
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ]);
         }
     }
