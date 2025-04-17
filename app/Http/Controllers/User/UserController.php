@@ -45,10 +45,13 @@ class UserController extends Controller
             if($user->role === 'lawyer' && $user->lawyer){
                 $serviceIds = json_decode($user->lawyer->service_ids);
                 $categories = is_array($serviceIds) ? Category::whereIn('id', $serviceIds)->pluck('name') : collect();
-                $is_favorite = Favorite::where('lawyer_id', $user->lawyer->id)->where('user_id', auth()->id())->exists();
             } else {
                 $categories = collect();
-                $is_favorite = false;
+            }
+            if($user->lawyer){
+                $is_favorite = Favorite::where('lawyer_id', $user->lawyer->id)->where('user_id', auth()->id())->exists();
+            } else {
+                $is_favorite = null;
             }
             $avatar = $user->avatar;
 
@@ -64,14 +67,15 @@ class UserController extends Controller
                 'email' => $user->email,
                 'avatar' => $avatar,
                 'categories' => $user->role === 'lawyer' && $user->lawyer ? (is_string($categories) ? json_decode($categories) : $categories) : null,
-                'practice_area' => $user->lawyer->practice_area,
-                'experience' => $user->lawyer->experience,
-                'state' => $user->lawyer->state,
-                'address' => $user->lawyer->address,
-                'languages' => $user->lawyer->languages,
-                'web_link' => $user->lawyer->web_link,
+                'practice_area' => $user->role === 'lawyer' && $user->lawyer ? $user->lawyer->practice_area : null,
+                'experience' => $user->role === 'lawyer' && $user->lawyer ? $user->lawyer->experience : null,
+                'state' => $user->role === 'lawyer' && $user->lawyer ? $user->lawyer->state : null,
+                'address' => $user->role === 'lawyer' && $user->lawyer ? $user->lawyer->address : null,
+                'phone' => $user->role === 'lawyer' && $user->lawyer ? $user->lawyer->phone : null,
+                'languages' => $user->role === 'lawyer' && $user->lawyer ? $user->lawyer->languages : null,
+                'web_link' => $user->role === 'lawyer' && $user->lawyer ? $user->lawyer->web_link : null,
                 'schedule' => $user->role === 'lawyer' && $user->lawyer ? (is_string($user->lawyer->schedule) ? json_decode($user->lawyer->schedule) : $user->lawyer->schedule) : null,
-                'is_favorite' => $user->role === 'lawyer' && $user->lawyer ? $is_favorite : null,
+                'is_favorite' =>  $user->lawyer ? $is_favorite : null,
                 'created_at' => $user->role === 'lawyer' && $user->lawyer ? $user->lawyer->created_at : $user->created_at,
             ];
             return response()->json([
