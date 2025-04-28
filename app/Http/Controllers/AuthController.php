@@ -330,16 +330,16 @@ class AuthController extends Controller
             $currentWeekEnd   = now()->endOfWeek();
             $lastUpdated      = $user->last_updated_at ? Carbon::parse($user->last_updated_at) : null;
 
-            if ($lastUpdated && $lastUpdated->between($currentWeekStart, $currentWeekEnd)) {
-                if ($user->update_count >= 2) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'You can only update your profile twice a week.',
-                    ], 400);
-                }
-            } else {
-                $user->update_count = 0;
-            }
+            // if ($lastUpdated && $lastUpdated->between($currentWeekStart, $currentWeekEnd)) {
+            //     if ($user->update_count >= 2) {
+            //         return response()->json([
+            //             'success' => false,
+            //             'message' => 'You can only update your profile twice a week.',
+            //         ], 400);
+            //     }
+            // } else {
+            //     $user->update_count = 0;
+            // }
             $user->update_count += 1;
             $user->last_updated_at = now();
         }
