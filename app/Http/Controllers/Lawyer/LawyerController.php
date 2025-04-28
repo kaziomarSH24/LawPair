@@ -22,7 +22,7 @@ class LawyerController extends Controller
         $validator = Validator::make($request->all(), [
             'service_ids' => 'required|json',
             'practice_area' => 'required|string',
-            'experience' => 'required|string',
+            'experience' => 'nullable|string',
             'languages' => 'required|string',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,svg',
             'state' => 'required|string',
@@ -30,7 +30,7 @@ class LawyerController extends Controller
             'city' => 'required|string',
             'phone' => 'required|string|unique:users,phone,' . $user->id,
             'web_link' => 'nullable|url',
-            'schedule' => 'required|string',
+            'schedule' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -132,6 +132,7 @@ class LawyerController extends Controller
                 'email' => $user->email,
                 'avatar' => $avatar,
                 'categories' => json_decode($categories),
+                'category_ids' => $lawyer->service_ids,
                 'practice_area' => $lawyer->practice_area,
                 'experience' => $lawyer->experience,
                 'state' => $lawyer->state,
