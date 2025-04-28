@@ -132,6 +132,7 @@ class LawyerController extends Controller
                 'email' => $user->email,
                 'avatar' => $avatar,
                 'categories' => json_decode($categories),
+                'category_ids' => $lawyer->service_ids,
                 'practice_area' => $lawyer->practice_area,
                 'experience' => $lawyer->experience,
                 'state' => $lawyer->state,
