@@ -15,6 +15,7 @@ class Lawyer extends Model
         'state',
         'city',
         'web_link',
+        'id_number',
         'schedule',
     ];
 

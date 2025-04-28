@@ -22,6 +22,7 @@ class LawyerController extends Controller
         $validator = Validator::make($request->all(), [
             'service_ids' => 'required|json',
             'practice_area' => 'required|string',
+            'id_number' => 'required|string',
             'experience' => 'nullable|string',
             'languages' => 'required|string',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,svg',
@@ -63,6 +64,7 @@ class LawyerController extends Controller
                 [
                     'service_ids' => $request->service_ids,
                     'practice_area' => $request->practice_area,
+                    'id_number' => $request->id_number,
                     'experience' => $request->experience,
                     'state' => $request->state,
                     'city' => $request->city,
@@ -97,7 +99,8 @@ class LawyerController extends Controller
         DB::commit();
         return response()->json([
             'success' => true,
-            'message' => 'Profile updated successfully'
+            'message' => 'Profile updated successfully',
+            'data'=>$lawyer,
         ], 200);
     } catch (\Exception $e) {
         DB::rollBack();
@@ -135,6 +138,7 @@ class LawyerController extends Controller
                 'category_ids' => $lawyer->service_ids,
                 'practice_area' => $lawyer->practice_area,
                 'experience' => $lawyer->experience,
+                'id_number' => $lawyer->id_number,
                 'state' => $lawyer->state,
                 'city' => $lawyer->city,
                 'address' => $user->address,
