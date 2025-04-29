@@ -154,6 +154,7 @@ class Homecontroller extends Controller
         $lawyers->getCollection()->transform(function($lawyer){
             $avatar = $lawyer->user->avatar;
             $is_favorite = Favorite::where('lawyer_id', $lawyer->id)->where('user_id', auth()->id())->exists();
+            $categories = Category::whereIn('id', json_decode($lawyer->service_ids))->pluck('name');
             // if ($avatar) {
             //     $avatar = asset('storage/' . $avatar);
             // }
@@ -168,6 +169,8 @@ class Homecontroller extends Controller
                 'state' => $lawyer->state,
                 'languages' => $lawyer->languages,
                 'experience' => $lawyer->experience,
+                'categories' => is_string($categories) ? json_decode($categories) : $categories,
+                'category_ids' => $lawyer->service_ids,
                 'role' => $lawyer->user->role,
                 'is_favorite' => $is_favorite,
                 'created_at' => $lawyer->created_at->format('d M Y'),
