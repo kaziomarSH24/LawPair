@@ -102,7 +102,7 @@ class Homecontroller extends Controller
             // }
 
             $is_favorite = Favorite::where('lawyer_id', $lawyer->id)->where('user_id', auth()->id())->exists();
-
+            // return $lawyer;
             $lawyer = [
                 'id' => $lawyer->id,
                 'user_id' => $lawyer->user_id,
@@ -118,7 +118,9 @@ class Homecontroller extends Controller
                 'id_number' => $lawyer->id_number,
                 'state' => $lawyer->state,
                 'address' => $lawyer->user->address,
+                'city' => $lawyer->city,
                 'languages' => $lawyer->languages,
+                'zipcode'=>$lawyer->zipcode,
                 'web_link' => $lawyer->web_link,
                 'schedule' => is_string($lawyer->schedule) ? json_decode($lawyer->schedule) : $lawyer->schedule,
                 'is_favorite' => $is_favorite,

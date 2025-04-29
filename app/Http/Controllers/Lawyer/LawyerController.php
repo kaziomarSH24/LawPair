@@ -29,6 +29,7 @@ class LawyerController extends Controller
             'state' => 'required|string',
             'address' => 'required|string',
             'city' => 'required|string',
+            'zipcode' => 'required|string',
             'phone' => 'required|string|unique:users,phone,' . $user->id,
             'web_link' => 'nullable|url',
             'schedule' => 'nullable|string',
@@ -70,6 +71,7 @@ class LawyerController extends Controller
                     'city' => $request->city,
                     'languages' => $request->languages,
                     'web_link' => $request->web_link,
+                    'zipcode'=>$request->zipcode,
                     'schedule' => $request->schedule,
                 ]
             );
@@ -140,6 +142,7 @@ class LawyerController extends Controller
                 'experience' => $lawyer->experience,
                 'id_number' => $lawyer->id_number,
                 'state' => $lawyer->state,
+                'zipcode' => $lawyer->zipcode,
                 'city' => $lawyer->city,
                 'address' => $user->address,
                 'languages' => $lawyer->languages,
