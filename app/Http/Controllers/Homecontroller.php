@@ -115,6 +115,7 @@ class Homecontroller extends Controller
                 'categories' => is_string($categories) ? json_decode($categories) : $categories,
                 'practice_area' => $lawyer->practice_area,
                 'experience' => $lawyer->experience,
+                'id_number' => $lawyer->id_number,
                 'state' => $lawyer->state,
                 'address' => $lawyer->user->address,
                 'languages' => $lawyer->languages,
