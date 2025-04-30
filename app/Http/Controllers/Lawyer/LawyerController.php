@@ -79,6 +79,7 @@ class LawyerController extends Controller
                     'languages' => $request->languages,
                     'web_link' => $request->web_link,
                     'zipcode'=>$request->zipcode,
+                    'linkedin_url' => $request->linkedin_url,
                     'schedule' => $request->schedule,
                 ]
             );
@@ -154,6 +155,7 @@ class LawyerController extends Controller
                 'address' => $user->address,
                 'languages' => $lawyer->languages,
                 'web_link' => $lawyer->web_link,
+                'linkedin_url' => $lawyer->linkedin_url,
                 'schedule' => json_decode($lawyer->schedule),
             ];
             return response()->json([
