@@ -74,6 +74,7 @@ class UserController extends Controller
                 'phone' => $user->role === 'lawyer' && $user->lawyer ? $user->lawyer->phone : null,
                 'languages' => $user->role === 'lawyer' && $user->lawyer ? $user->lawyer->languages : null,
                 'web_link' => $user->role === 'lawyer' && $user->lawyer ? $user->lawyer->web_link : null,
+                'linkedin_url' => $user->role === 'lawyer' && $user->lawyer ? $user->lawyer->linkedin_url : null,
                 'schedule' => $user->role === 'lawyer' && $user->lawyer ? (is_string($user->lawyer->schedule) ? json_decode($user->lawyer->schedule) : $user->lawyer->schedule) : null,
                 'is_favorite' =>  $user->lawyer ? $is_favorite : null,
                 'created_at' => $user->role === 'lawyer' && $user->lawyer ? $user->lawyer->created_at : $user->created_at,
