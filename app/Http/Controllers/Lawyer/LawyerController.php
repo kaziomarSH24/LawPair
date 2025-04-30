@@ -32,8 +32,15 @@ class LawyerController extends Controller
             'zipcode' => 'required|string',
             'phone' => 'required|string|unique:users,phone,' . $user->id,
             'web_link' => 'nullable|url',
+            'linkedin_url' => 'nullable|regex:/^https?:\/\/(www\.)?linkedin\.com\/.*$/i',
             'schedule' => 'nullable|string',
-        ]);
+        ],
+        [
+            'linkedin_url.regex' => 'Please enter a valid LinkedIn profile URL',
+        ]
+
+
+    );
 
         if ($validator->fails()) {
             return response()->json([
