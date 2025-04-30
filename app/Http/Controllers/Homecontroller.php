@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Lawyer;
 use App\Models\Category;
 use App\Models\Favorite;
-use App\Models\Lawyer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class Homecontroller extends Controller
 {
@@ -140,12 +141,12 @@ class Homecontroller extends Controller
     //search lawyer by name
     public function searchLawyer(Request $request){
         $searchKey = $request->name;
+
         $lawyers = Lawyer::with('user')
-            ->whereHas('user', function ($query) use ($searchKey) {
-            $query->where('first_name', 'like', '%' . $searchKey . '%')
-                  ->orWhere('last_name', 'like', '%' . $searchKey . '%');
-            })
-            ->paginate($request->per_page ?? 10);
+        ->whereHas('user', function ($query) use ($searchKey) {
+            $query->where(DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', "%$searchKey%");
+        })
+        ->paginate($request->per_page ?? 10);
 
         if($lawyers->count() == 0){
             return response()->json([
