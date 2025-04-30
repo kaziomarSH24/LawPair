@@ -120,6 +120,7 @@ class Homecontroller extends Controller
                 'address' => $lawyer->user->address,
                 'languages' => $lawyer->languages,
                 'web_link' => $lawyer->web_link,
+                'linkedin_url' => $lawyer->linked_in,
                 'schedule' => is_string($lawyer->schedule) ? json_decode($lawyer->schedule) : $lawyer->schedule,
                 'is_favorite' => $is_favorite,
                 'created_at' => $lawyer->created_at
