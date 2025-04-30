@@ -165,6 +165,7 @@ class Homecontroller extends Controller
             // }
             return [
                 'id' => $lawyer->id,
+                'id_number' => $lawyer->id_number,
                 'first_name' => $lawyer->user->first_name,
                 'last_name' => $lawyer->user->last_name,
                 'full_name' => $lawyer->user->full_name,
@@ -179,6 +180,8 @@ class Homecontroller extends Controller
                 'role' => $lawyer->user->role,
                 'is_favorite' => $is_favorite,
                 'created_at' => $lawyer->created_at->format('d M Y'),
+                'web_link' => $lawyer->web_link,
+                'linkedin_url' => $lawyer->linkedin_url,
             ];
         });
 

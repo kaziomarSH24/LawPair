@@ -30,10 +30,13 @@ class FavoriteListController extends Controller
                     'address' => $favorite->lawyer->user->address,
                     'avatar' => $favorite->lawyer->user->avatar,
                     'categories' => json_decode($categories),
+                    'category_ids' => $favorite->lawyer->service_ids,
                     'state' => $favorite->lawyer->state,
                     'languages' => $favorite->lawyer->languages,
                     'experience' => $favorite->lawyer->experience,
                     'is_favorite' => $favorite->is_favorite,
+                    'web_link' => $favorite->lawyer->web_link,
+                    'linkedin_url' => $favorite->lawyer->linkedin_url,
                     'created_at' => $favorite->lawyer->created_at->format('d M Y'),
                 ];
             });
