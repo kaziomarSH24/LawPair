@@ -190,6 +190,7 @@ class LawyerController extends Controller
                 'first_name' => $lawyer->user->first_name,
                 'last_name' => $lawyer->user->last_name,
                 'full_name' => $lawyer->user->full_name,
+                'id_number' => $lawyer->id_number,
                 'phone' => $lawyer->user->phone,
                 'email' => $lawyer->user->email,
                 'avatar' => $avatar,
