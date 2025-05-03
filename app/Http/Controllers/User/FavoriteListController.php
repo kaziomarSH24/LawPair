@@ -67,8 +67,8 @@ class FavoriteListController extends Controller
             }
 
             // Check if the lawyer is already in the favorite list
-            $favoriteList = $user->favoriteList()->where('id', $request->lawyer_id)->first();
-
+            $favoriteList = $user->favoriteList()->where('lawyer_id', $request->lawyer_id)->first();
+            // return $user->favoriteList();
             if ($favoriteList) {
                 return response()->json([
                     'success' => false,
