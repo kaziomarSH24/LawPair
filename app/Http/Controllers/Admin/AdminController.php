@@ -177,20 +177,26 @@ class AdminController extends Controller
      public function getAllUsers(Request $request){
         $search = $request->search;
         $perPage = $request->per_page ?? 10;
-        $users = User::where('role', 'user')
-            ->orWhere('role', 'lawyer')
-            ->where(function($query) use ($search){
-                $query->where('first_name', 'like', '%' . $search . '%')
-                    ->orWhere('last_name', 'like', '%' . $search . '%')
-                    ->orWhere('email', 'like', '%' . $search . '%');
+        $users = User::with('lawyer')
+            ->where(function($query){
+            $query->where('role', 'user')
+                ->orWhere('role', 'lawyer');
+            })
+            ->where(function($query) use ($search) {
+            $query->where('first_name', 'like', '%' . $search . '%')
+                ->orWhere('last_name', 'like', '%' . $search . '%')
+                ->orWhere('email', 'like', '%' . $search . '%')
+                ->orWhereHas('lawyer', function($lawyerQuery) use ($search) {
+                $lawyerQuery->where('id_number', 'like', '%' . $search . '%');
+                });
             })
             ->orderBy('id', 'desc')
             ->paginate($perPage);
             if ($users->count() == 0) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No user found!'
-                ], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'No user found!'
+            ], 404);
             }
         $users->transform(function($user){
             $avatar = $user->avatar;
@@ -202,6 +208,7 @@ class AdminController extends Controller
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
                 'full_name' => $user->full_name,
+                'id_number' => $user->role == "lawyer" && $user->lawyer ? $user->lawyer->id_number : null,
                 'phone' => $user->phone,
                 'email' => $user->email,
                 'avatar' => $avatar,
