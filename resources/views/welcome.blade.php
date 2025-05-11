@@ -7,6 +7,6 @@
     <title>Document</title>
 </head>
 <body>
-    <a href="{{route('google.login')}}">Login with Google</a>
+    <a href="#">Welcome to Lawpair.</a>
 </body>
 </html>
