@@ -70,6 +70,7 @@ class AdminController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|unique:categories,name',
             'image_icon' => 'required|image|mimes:png,svg',
+            'description' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -112,6 +113,7 @@ class AdminController extends Controller
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|unique:categories,name,' . $id,
                 'image_icon' => 'nullable|image|mimes:png,svg',
+                'description' => 'nullable|string|max:255',
             ]);
 
             if ($validator->fails()) {

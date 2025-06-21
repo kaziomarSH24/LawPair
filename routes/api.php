@@ -9,7 +9,7 @@ use App\Http\Controllers\Lawyer\LawyerController;
 use Illuminate\Container\Attributes\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Homecontroller;
 use App\Http\Controllers\User\FavoriteListController;
 use App\Http\Controllers\User\UserController;
 
@@ -98,16 +98,16 @@ Route::group(['prefix' => 'lawyer', 'middleware' => ['jwt.auth', 'lawyer']], fun
  * Home page Routes
  */
 
-// Route::controller(HomeController::class)->group(function(){
+// Route::controller(Homecontroller::class)->group(function(){
 //     //find lawyer
 //     Route::get('/find-lawyers', 'findLawyers')->middleware('jwt.auth');
 //     Route::get('/lawyer/{id}', 'getLawyerProfile')->middleware('jwt.auth');
 // });
 
 Route::middleware('guest')->group(function(){
-    Route::get('/find-lawyers', [HomeController::class, 'findLawyers']);
-    Route::get('/lawyer/{id}', [HomeController::class, 'getLawyerProfile']);
-    Route::get('/search-lawyer', [HomeController::class, 'searchLawyer']);
+    Route::get('/find-lawyers', [Homecontroller::class, 'findLawyers']);
+    Route::get('/lawyer/{id}', [Homecontroller::class, 'getLawyerProfile']);
+    Route::get('/search-lawyer', [Homecontroller::class, 'searchLawyer']);
 });
 
  /**
